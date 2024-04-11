@@ -1,0 +1,124 @@
+---
+title: 'ASSIGNMENT 05.2: Query Tabular Data with SQL'
+author: "Chandresh Lokesha"
+date: "Spring 2024"
+output: html_document
+---
+
+## R Analysis of Restaurant Visits
+
+We recorded a total number of __ visits across __ different restaurants from ____ to ____. The average amount spent for a visit across all restaurants is ___ (σ = ___). The most visits were at ______ while the largest revenue across all years was at ______. The average size of a party was ___ and __% of all parties consumed wine.
+
+```{r setup, include=FALSE}
+# Load necessary libraries and set options
+library(dplyr)
+library(sqldf)
+library(knitr)
+
+# Set options to suppress warnings and messages
+options(warn=-1, message=-1)
+```
+
+```{r, echo=FALSE}
+# Load data from URLs
+link1 <- "https://s3.us-east-2.amazonaws.com/artificium.us/assignments/80.xml/a-80-305/gen-xml/synthsalestxns-Jan2Mar.csv"
+link2 <- "https://s3.us-east-2.amazonaws.com/artificium.us/assignments/80.xml/a-80-305/gen-xml/synthsalestxns-Sep2Oct.csv"
+link3 <- "https://s3.us-east-2.amazonaws.com/artificium.us/assignments/80.xml/a-80-305/gen-xml/synthsalestxns-Nov2Dec.csv"
+
+# Read data into dataframes
+data1 <- read.csv(link1)
+data2 <- read.csv(link2)
+data3 <- read.csv(link3)
+
+# Combine data from multiple files
+combined_data <- bind_rows(data1, data2, data3)
+
+```
+
+```{r, echo=FALSE}
+# Calculate total visits
+total_visits <- nrow(combined_data)
+
+# Calculate total number of different restaurants
+unique_restaurants <- combined_data %>% 
+  distinct(restaurant) %>% 
+  nrow()
+
+# Create a new column with cleaned numeric values(remove '$' and ',' characters 
+# and then convert it to numeric datatype)
+combined_data$cleaned_amount <- as.numeric(gsub("[$,]", "", combined_data$amount))
+
+# Calculate average amount spent for a visit
+average_amount <- mean(combined_data$cleaned_amount)
+
+# Calculate standard deviation of the amount spent
+std_dev_amount <- sd(combined_data$cleaned_amount)
+
+# Find the restaurant with the most visits
+most_visited <- combined_data %>% 
+  group_by(restaurant) %>% 
+  summarise(total_visits = n()) %>% 
+  arrange(desc(total_visits)) %>% 
+  slice(1) %>% 
+  pull(restaurant)
+
+# Find the restaurant with the largest revenue
+max_revenue <- combined_data %>% 
+  group_by(restaurant) %>% 
+  summarise(total_revenue = sum(cleaned_amount, na.rm = TRUE)) %>% # Use na.rm = TRUE to handle NA values
+  arrange(desc(total_revenue)) %>% 
+  slice(1) %>% 
+  pull(restaurant)
+
+# Convert "date" column to Date format
+combined_data$date <- as.Date(combined_data$date, format = "%m/%d/%Y")
+
+# Find the earliest and last dates
+earliest_date <- min(combined_data$date)
+last_date <- max(combined_data$date)
+
+# Convert the dates to the desired format (mm/dd/yyyy)
+earliest_date_formatted <- format(earliest_date, "%m/%d/%Y")
+last_date_formatted <- format(last_date, "%m/%d/%Y")
+
+# Calculate average party size
+average_party_size <- mean(combined_data$guests)
+
+# Calculate percentage of parties consuming wine
+wine_percentage <- ( sum(combined_data$wine=='Yes') / nrow(combined_data) ) * 100
+
+```
+
+```{r, echo=FALSE}
+cat(paste("We recorded a total number of", total_visits, "visits across", 
+          unique_restaurants, "different restaurants from ", earliest_date_formatted, "to ", last_date_formatted," \n"))
+cat(paste("The average amount spent for a visit across all restaurants is", 
+          round(average_amount, 2), "(σ =", round(std_dev_amount, 2), "). \n"))
+cat(paste("The most visits were at", most_visited, 
+          "while the largest revenue across all years was at", max_revenue, ". \n"))
+cat(paste("The average size of a party was", round(average_party_size, 2), 
+          "and", round(wine_percentage, 2), "% of all parties consumed wine. \n"))
+
+```
+### Summary of the data
+```{r, echo=FALSE}
+
+# SQL query to get names of restaurants, total visits, and average revenue per restaurant
+revenue_summary_query <- "
+SELECT restaurant,
+       COUNT(*) AS total_visits,
+       AVG(cleaned_amount) AS avg_revenue
+FROM combined_data
+GROUP BY restaurant
+"
+
+# Execute the query using sqldf
+revenue_summary <- sqldf(revenue_summary_query)
+
+# Display the revenue summary table
+kable(revenue_summary)
+
+# Display the content of revenue_summary
+print(revenue_summary)
+
+```

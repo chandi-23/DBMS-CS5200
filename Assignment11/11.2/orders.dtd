@@ -1,0 +1,32 @@
+<!ELEMENT Root (Customers, Orders)>
+<!ELEMENT Customers (Customer+)>
+<!ELEMENT Customer (CompanyName, ContactName, ContactTitle, Phone, Fax, FullAddress)>
+<!ATTLIST Customer CustomerID CDATA #REQUIRED>
+<!ELEMENT CompanyName (#PCDATA)>
+<!ELEMENT ContactName (#PCDATA)>
+<!ELEMENT ContactTitle (#PCDATA)>
+<!ELEMENT Phone (#PCDATA)>
+<!ELEMENT Fax (#PCDATA)>
+<!ELEMENT FullAddress (Address, City, Region, PostalCode, Country)>
+<!ELEMENT Address (#PCDATA)>
+<!ELEMENT City (#PCDATA)>
+<!ELEMENT Region (#PCDATA)>
+<!ELEMENT PostalCode (#PCDATA)>
+<!ELEMENT Country (#PCDATA)>
+
+<!ELEMENT Orders (Order+)>
+<!ELEMENT Order (CustomerID, EmployeeID, OrderDate, RequiredDate, ShipInfo)>
+<!ELEMENT CustomerID (#PCDATA)>
+<!ELEMENT EmployeeID (#PCDATA)>
+<!ELEMENT OrderDate (#PCDATA)>
+<!ELEMENT RequiredDate (#PCDATA)>
+<!ELEMENT ShipInfo (ShipVia, Freight, ShipName, ShipAddress, ShipCity, ShipRegion, ShipPostalCode, ShipCountry)>
+<!ATTLIST ShipInfo ShippedDate CDATA #IMPLIED>
+<!ELEMENT ShipVia (#PCDATA)>
+<!ELEMENT Freight (#PCDATA)>
+<!ELEMENT ShipName (#PCDATA)>
+<!ELEMENT ShipAddress (#PCDATA)>
+<!ELEMENT ShipCity (#PCDATA)>
+<!ELEMENT ShipRegion (#PCDATA)>
+<!ELEMENT ShipPostalCode (#PCDATA)>
+<!ELEMENT ShipCountry (#PCDATA)>

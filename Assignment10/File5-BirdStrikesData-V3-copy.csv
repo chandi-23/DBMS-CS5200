@@ -1,0 +1,11 @@
+rid,aircraft,airport,model,impact,flight_date,damage,airline,origin,flight_phase,wildlife_size,sky_conditions,pilot_warned_flag,altitude_ft,heavy_flag
+202152,Airplane,LAGUARDIA NY,C-500,Engine Shut Down,11/23/2000 0:00,Damage,AIRTOURS INTL,DC,Climb,Medium,No Cloud,N,"1,500",Yes
+208159,Airplane,LAGUARDIA NY,B-737-400,None,7/25/2001 0:00,Damage,AIRTOURS INTL,DC,Landing Roll,Small,Some Cloud,Y,0,Yes
+207601,Airplane,LAGUARDIA NY,B-737-400,None,9/14/2001 0:00,No damage,AIRTOURS INTL,DC,Approach,Small,No Cloud,N,50,Yes
+215953,Airplane,LAGUARDIA NY,B-737-400,Precautionary Landing,9/5/2002 0:00,No damage,AIRTOURS INTL,DC,Climb,Small,Some Cloud,Y,50,Yes
+219878,Airplane,LAGUARDIA NY,B-737-400,None,6/23/2003 0:00,No damage,AIRTOURS INTL,DC,Approach,Small,No Cloud,N,50,Yes
+218432,Airplane,LAGUARDIA NY,B-737-400,None,7/24/2003 0:00,No damage,AIRTOURS INTL,DC,Take-off run,Small,No Cloud,N,0,Yes
+221697,Airplane,LAGUARDIA NY,B-737-400,Other,8/17/2003 0:00,Damage,AIRTOURS INTL,DC,Climb,Small,No Cloud,N,150,Yes
+236635,Airplane,SCRANTON INTL,B-737-400,Other,3/1/2006 0:00,Damage,AIRTOURS INTL,DC,Approach,Small,Some Cloud,Y,100,Yes
+207369,Airplane,SCRANTON INTL,B-737-400,Aborted Take-off,1/6/2000 0:00,No damage,AIRTOURS INTL,DC,Take-off run,Small,Some Cloud,N,0,Yes
+204371,Airplane,LAGUARDIA NY,B-737-400,None,1/7/2000 0:00,No damage,AIRTOURS INTL,DC,Landing Roll,Small,Some Cloud,N,0,Yes

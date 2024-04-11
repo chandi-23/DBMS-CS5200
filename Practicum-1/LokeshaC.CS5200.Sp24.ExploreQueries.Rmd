@@ -1,0 +1,26 @@
+---
+title: "Assignment / Explore Query Planning and Indexing"
+author: "Chandresh Lokesha"
+date: "Spring 2024"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r connectToDB, warning=FALSE}
+# Install and load required packages
+install.packages("RSQLite")
+library(RSQLite)
+
+# Step 1: Connect to the SQLite database
+# Replace 'your_database.db' with the name of your SQLite database file
+conn <- RSQLite::dbConnect(RSQLite::SQLite(), dbname = "sakila.db")
+
+```
+
+```{r testQuery}
+res <- dbGetQuery(conn, "SELECT * from FILM")
+print(res)
+```

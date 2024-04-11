@@ -1,0 +1,149 @@
+---
+title: "Assignment / Explore Query Planning and Indexing"
+author: "Chandresh Lokesha"
+date: "Spring 2024"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r connectToDB, warning=FALSE}
+library(RSQLite)
+
+# Step 1: Connect to the SQLite database
+conn <- RSQLite::dbConnect(RSQLite::SQLite(), dbname = "sakila.db")
+
+```
+
+```{r testQuery, eval=FALSE}
+res <- dbGetQuery(conn, "SELECT * from FILM")
+print(res)
+```
+
+## Question 1
+```{r Q1, warning=FALSE}
+# Step 2: Retrieve the list of user-defined indexes
+indexes <- RSQLite::dbGetQuery(conn, 
+                               "SELECT name FROM sqlite_master 
+                               WHERE type = 'index' 
+                               AND tbl_name != 'sqlite_sequence' 
+                               AND sql NOT LIKE '%UNIQUE%' 
+                               AND sql NOT LIKE '%PRIMARY KEY%'")
+
+# Step 3: Drop each user-defined index
+if (nrow(indexes) > 0) {
+  for (i in 1:nrow(indexes)) {
+    RSQLite::dbExecute(conn, paste0("DROP INDEX IF EXISTS ", indexes$name[i]))
+  }
+}
+
+res <- dbGetQuery(conn, "SELECT l.name, count(*) from FILM f, LANGUAGE l 
+                  where l.language_id = f.language_id GROUP BY l.language_id")
+
+print(res)
+```
+## Question 2
+```{r Q2_QueryPlan, warning=FALSE}
+query <- "SELECT l.name, count(*) AS film_count 
+          FROM FILM f 
+          JOIN LANGUAGE l ON l.language_id = f.language_id 
+          GROUP BY l.name"
+plan <- RSQLite::dbGetQuery(conn, paste("EXPLAIN QUERY PLAN", query))
+print(plan)
+```
+
+## Question 3
+```{r Q3_ZorroArk, warning=FALSE}
+query3 <- "SELECT f.title, f.length, c.Name AS film_category
+          FROM FILM f 
+          JOIN FILM_CATEGORY fc on fc.film_Id = f.film_Id
+          JOIN Category c on fc.category_id = c.category_id
+          where f.title = 'ZORRO ARK'"
+
+res <- RSQLite::dbGetQuery(conn, query)
+print(res)
+```
+
+## Question 4
+```{r Q4_Q3QueryPlan}
+
+plan <- RSQLite::dbGetQuery(conn, paste("EXPLAIN QUERY PLAN", query3))
+print(plan)
+```
+
+## Question 5
+```{r, createIndexTitle}
+RSQLite::dbExecute(conn, "CREATE INDEX IF NOT EXISTS TitleIndex ON FILM (TITLE)")
+
+```
+
+## Question 6
+```{r, indexedQuery3}
+plan <- RSQLite::dbGetQuery(conn, paste("EXPLAIN QUERY PLAN", query3))
+print(plan)
+```
+## Question 7 Comments and differences
+### Yes, they are different.Looking at the query plan on the film table details we can say that indxing is being used in the later. As you can see before creating index SEARCH on f is performed using primary key, and after creating index search f is based on TitleIndex
+
+## Question 8
+## Measure Time without Index Title
+```{r measureTimeWithoutIndex, warning=FALSE}
+dbExecute(conn, "DROP INDEX IF EXISTS TitleIndex;")
+bt <- Sys.time()
+execQuery <- function ()
+{
+ res <- RSQLite::dbSendQuery(conn, query3)
+}
+
+et <- Sys.time()
+
+t.which <- et - bt
+
+cat("Time elapsed: ", round((t.which),3), " sec")
+
+```
+
+## Measure Time with Index title
+```{r Measuretime, warning=FALSE}
+RSQLite::dbExecute(conn, "CREATE INDEX IF NOT EXISTS TitleIndex ON FILM (TITLE)")
+bt <- Sys.time()
+execQuery <- function ()
+{
+ res <- RSQLite::dbSendQuery(conn, query3)
+}
+
+et <- Sys.time()
+
+t.which <- et - bt
+
+cat("Time elapsed: ", round((t.which),3), " sec")
+
+
+```
+
+
+
+## Report: time taken for the entire expression to execute
+### As you can see the indexing has reduced time to execute
+
+## Question 9
+```{r Q9usingLikeOp, warning=FALSE}
+
+query1 <- "SELECT l.name, f.title, f.length 
+            from FILM f, LANGUAGE l 
+            where l.language_id = f.language_id and title LIKE '%[Gg][Oo][Ll][Dd]%';"
+            
+
+res <- dbGetQuery(conn, query1)
+
+```
+
+## Question 10
+```{r Q10_q9QueryPlan, warning=FALSE}
+plan <- RSQLite::dbGetQuery(conn, paste("EXPLAIN QUERY PLAN", query1))
+print(plan)
+
+```
+### There is no difference i.e it did not use the index (as you can see in in the query plan deatils 'SCAN f' is performed).This is because in the query plan 'LIKE' operator is used and it will not make use of indexing

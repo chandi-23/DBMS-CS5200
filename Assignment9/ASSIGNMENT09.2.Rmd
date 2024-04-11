@@ -1,0 +1,76 @@
+---
+title: "Calculate Reliability"
+author: "Chandresh Lokesha"
+date: "Spring 24"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+
+An analytics group has built a distributed data lake as part of a new data warehouse. The data warehouse consists of a number of distinct components, including:
+
+- A database on a cloud server (99.987% availability)
+- Two identical database management system servers (99.3%)
+- An analytics logic server (94.7%)
+- Network infrastructure to the cloud server (98.37%)
+
+What is the overall availability of the system, expressed as a percentage with three digits of precision? Show your work.
+
+### Solution:
+
+The overall availability of the system can be calculated using the formula for parallel systems:
+
+\[
+A_{\text{overall}} =\prod_{i=1}^{n} (A_i)
+\]
+
+where \( A_i \) represents the availability of each component.
+
+Given:
+
+- Cloud server availability (\( A_1 \)) = 99.987%
+- Database management system servers availability (\( A_2 \)) = 99.3%
+- Analytics logic server availability (\( A_3 \)) = 94.7%
+- Network infrastructure availability (\( A_4 \)) = 98.37%
+
+We can calculate the overall availability:
+
+```{r}
+cloud_server <- 0.99987
+db_servers <- 0.993
+analytics_server <- 0.947
+network_infrastructure <- 0.9837
+
+overall_availability <- cloud_server * db_servers * analytics_server * network_infrastructure
+overall_availability_percentage <- overall_availability * 100
+round(overall_availability_percentage, 3)
+```
+
+
+## Question 2
+### Solution:
+
+The expected annual reliability of the RAID 1+0 storage system can be calculated using the formula:
+
+\[
+\text{Reliability} = e^{-\frac{\text{hours}}{\text{MBTF}}}
+\]
+
+Given:
+
+- MBTF = 1,450,000 hours
+
+We can calculate the expected annual reliability:
+
+```{r}
+MBTF <- 1450000
+hours_per_year <- 24 * 365
+
+reliability <- exp(-hours_per_year / MBTF)
+reliability
+
+```

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE todo [
+<!ELEMENT todo (list*)>
+<!ELEMENT list (item*)>
+<!ATTLIST list name CDATA #REQUIRED>
+<!ATTLIST list category (personal|work|home|school) #REQUIRED>
+<!ELEMENT item EMPTY>
+<!ATTLIST item iid ID #REQUIRED>
+<!ATTLIST item title CDATA #REQUIRED>
+<!ATTLIST item desc CDATA #REQUIRED>
+<!ATTLIST item due CDATA #REQUIRED>
+]>
+
+<todo>
+    <list name="Groceries" category="personal">
+        <item iid="i1" title="Milk" desc="Buy 2 gallons of milk" due="2024-04-01"/>
+        <item iid="i2" title="Bread" desc="Whole grain bread" due="2024-04-02"/>
+    </list>
+    <list name="WorkTasks" category="work">
+        <item iid="i3" title="Report" desc="Complete the annual report" due="2024-04-10"/>
+        <item iid="i4" title="Meeting" desc="Prepare for the quarterly meeting" due="2024-04-05"/>
+    </list>
+    <list name="SchoolAssignments" category="school">
+        <item iid="i5" title="DBMS" desc="Implement XML Query" due="2024-04-5"/>
+        <item iid="i6" title="HCI" desc="Create a report" due="2024-04-04"/>
+    </list>
+</todo>

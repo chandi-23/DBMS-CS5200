@@ -1,0 +1,11 @@
+rid,aircraft,airport,model,impact,flight_date,damage,airline,origin,flight_phase,wildlife_size,sky_conditions,pilot_warned_flag,altitude_ft,heavy_flag
+202152,Airplane,ATLANTA INTL,B-737-400,Engine Shut Down,11/23/2000 0:00,Damage,US AIRWAYS,New York,Climb,Medium,No Cloud,N,"1,500",Yes
+208159,Airplane,ATLANTA INTL,MD-80,None,7/25/2001 0:00,Damage,AMERICAN AIRLINES,Texas,Landing Roll,Small,Some Cloud,Y,0,No
+207601,Airplane,ATLANTA INTL,C-500,None,9/14/2001 0:00,No damage,BUSINESS,Louisiana,Approach,Small,No Cloud,N,50,No
+215953,Airplane,ATLANTA INTL,B-737-400,Precautionary Landing,9/5/2002 0:00,No damage,ALASKA AIRLINES,Washington,Climb,Small,Some Cloud,Y,50,Yes
+219878,Airplane,ATLANTA INTL,CL-RJ100/200,None,6/23/2003 0:00,No damage,COMAIR AIRLINES,Virginia,Approach,Small,No Cloud,N,50,No
+218432,Airplane,ALBANY INTL,A-300,None,7/24/2003 0:00,No damage,AMERICAN AIRLINES,N/A,Take-off run,Small,No Cloud,N,0,No
+221697,Airplane,ALBANY INTL,LEARJET-25,Other,8/17/2003 0:00,Damage,BUSINESS,Delaware,Climb,Small,No Cloud,N,150,No
+236635,Airplane,ATLANTA INTL,A-320,Other,3/1/2006 0:00,Damage,UNITED AIRLINES,DC,Approach,Small,Some Cloud,Y,100,No
+207369,Airplane,WASHINGTON DULLES INTL ARPT,DC-9-30,Aborted Take-off,1/6/2000 0:00,No damage,AIRTRAN AIRWAYS,Georgia,Take-off run,Small,Some Cloud,N,0,No
+204371,Airplane,ATLANTA INTL,A-330,None,1/7/2000 0:00,No damage,AIRTOURS INTL,Florida,Landing Roll,Small,Some Cloud,N,0,No

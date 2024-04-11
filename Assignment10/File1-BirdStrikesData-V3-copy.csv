@@ -1,0 +1,11 @@
+rid,aircraft,airport,model,impact,flight_date,damage,airline,origin,flight_phase,wildlife_size,sky_conditions,pilot_warned_flag,altitude_ft,heavy_flag
+202152,Airplane,LAGUARDIA NY,B-737-400,Engine Shut Down,1/7/2000 0:00,Damage,AIRTRAN AIRWAYS,New York,Climb,Medium,No Cloud,N,"1,500",Yes
+208159,Airplane,DALLAS/FORT WORTH INTL ARPT,MD-80,None,1/7/2000 0:00,Damage,US AIRWAYS,Texas,Landing Roll,Medium,Some Cloud,Y,0,No
+207601,Airplane,LAKEFRONT AIRPORT,C-500,None,1/7/2000 0:00,No damage,US AIRWAYS,Louisiana,Approach,Medium,No Cloud,N,50,No
+215953,Airplane,SEATTLE-TACOMA INTL,B-737-400,Precautionary Landing,1/7/2000 0:00,No damage,US AIRWAYS,Washington,Climb,Medium,Some Cloud,Y,50,Yes
+219878,Airplane,NORFOLK INTL,CL-RJ100/200,None,1/7/2000 0:00,No damage,US AIRWAYS,Virginia,Approach,Medium,No Cloud,N,50,No
+218432,Airplane,LAGUARDIA NY,A-300,None,1/7/2000 0:00,No damage,US AIRWAYS,N/A,Take-off run,Medium,No Cloud,N,0,No
+221697,Airplane,NEW CASTLE COUNTY,LEARJET-25,Other,1/7/2000 0:00,Damage,US AIRWAYS,Delaware,Climb,Medium,No Cloud,N,150,No
+236635,Airplane,LAGUARDIA NY,A-320,Other,1/7/2000 0:00,Damage,US AIRWAYS,DC,Approach,Medium,Some Cloud,Y,100,No
+207369,Airplane,LAGUARDIA NY,DC-9-30,Aborted Take-off,1/7/2000 0:00,No damage,US AIRWAYS,Georgia,Take-off run,Medium,Some Cloud,N,0,No
+204371,Airplane,ORLANDO SANFORD INTL AIRPORT,A-330,None,1/7/2000 0:00,No damage,US AIRWAYS,Florida,Landing Roll,Medium,Some Cloud,N,0,No

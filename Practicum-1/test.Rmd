@@ -1,0 +1,158 @@
+---
+title: "Analysis of Wildlife Strikes to Aircraft"
+author: "Chandresh Lokesha"
+date: "Spring 24"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+## Practicum I CS5200
+
+```{r connectToDB, echo=FALSE, message=FALSE}
+library(DBI)
+library(RMySQL)
+library(lubridate)
+library(dplyr)
+birdStrikeDBCon = dbConnect(RMySQL::MySQL(),
+                            dbname='birdstrike',
+                            host='localhost',
+                            port=3306,
+                            user='root',
+                            password='password')
+```
+
+```{sql connection=birdStrikeDBCon}
+#show global variables like 'local_infile';
+set global local_infile = TRUE;
+```
+
+```{r DropTablesBeforeCreation}
+
+# Drop the flights table if it exists
+dbSendQuery(birdStrikeDBCon, "DROP TABLE IF EXISTS strikes;")
+dbSendQuery(birdStrikeDBCon, "DROP TABLE IF EXISTS conditions;")
+dbSendQuery(birdStrikeDBCon, "DROP TABLE IF EXISTS flights;")
+dbSendQuery(birdStrikeDBCon, "DROP TABLE IF EXISTS airports;")
+```
+
+```{r CreateTables}
+# Create Table airport
+
+dbSendQuery(birdStrikeDBCon, "CREATE TABLE airports (
+  aid INTEGER PRIMARY KEY,
+  airportName TEXT,
+  airportState TEXT,
+  airportCode VARCHAR(3) DEFAULT 'ZZZ'
+);
+")
+
+# Create Table Flights
+
+dbSendQuery(birdStrikeDBCon, "CREATE TABLE flights (
+  fid INTEGER PRIMARY KEY,
+  date DATE,
+  originAirport INTEGER,
+  airlineName TEXT,
+  aircraftType TEXT,
+  isHeavy BOOLEAN,
+  FOREIGN KEY (originAirport) REFERENCES airports(aid)
+);
+")
+
+dbSendQuery(birdStrikeDBCon, "CREATE TABLE conditions (
+  cid INTEGER PRIMARY KEY,
+  sky_condition TEXT,
+  explanation TEXT
+);
+")
+
+dbSendQuery(birdStrikeDBCon, "CREATE TABLE strikes (
+  sid INTEGER PRIMARY KEY,
+  fid INTEGER,
+  numbirds INTEGER,
+  impact TEXT,
+  damage BOOLEAN,
+  altitude INTEGER CHECK (altitude >= 0),
+  conditions INTEGER,
+  FOREIGN KEY (fid) REFERENCES flights(fid),
+  FOREIGN KEY (conditions) REFERENCES conditions(cid)
+);
+")
+```
+
+```{r, eval=FALSE}
+
+# Insert sample data into the 'airports' table
+dbSendQuery(birdStrikeDBCon, "INSERT INTO airports (aid, airportName, airportState, airportCode) VALUES (1, 'Airport1', 'State1', 'ABC');")
+res <- dbExecute(birdStrikeDBCon, "SELECT * from airports")
+print(res)
+
+# Insert sample data into the 'flights' table
+dbSendQuery(birdStrikeDBCon, "INSERT INTO flights (fid, date, originAirport, airlineName, aircraftType, isHeavy) VALUES (2, '2024-03-06', 1, 'Airline1', 'Aircraft1', TRUE);")
+res <- dbExecute(birdStrikeDBCon, "SELECT * from flights")
+print(res)
+
+# Insert sample data into the 'conditions' table
+dbSendQuery(birdStrikeDBCon, "INSERT INTO conditions (cid, sky_condition, explanation) VALUES (2, 'Overcast', 'Explanation1');")
+res <- dbExecute(birdStrikeDBCon, "SELECT * from conditions")
+print(res)
+
+# Insert sample data into the 'strikes' table
+dbSendQuery(birdStrikeDBCon, "INSERT INTO strikes (sid, fid, numbirds, impact, damage, altitude, conditions)
+VALUES (3, 2, 5, 'Impact1', TRUE, 10000, 2);")
+res <- dbExecute(birdStrikeDBCon, "SELECT * from strikes")
+print(res)
+
+# Fetch and print data from the 'airports' table
+airports_data <- dbGetQuery(birdStrikeDBCon, "SELECT * FROM airports;")
+print(airports_data)
+
+# Fetch and print data from the 'flights' table
+flights_data <- dbGetQuery(birdStrikeDBCon, "SELECT * FROM flights;")
+print(flights_data)
+
+# Fetch and print data from the 'conditions' table
+conditions_data <- dbGetQuery(birdStrikeDBCon, "SELECT * FROM conditions;")
+print(conditions_data)
+
+strikes_data <- dbGetQuery(birdStrikeDBCon, "SELECT * FROM strikes;")
+print(strikes_data)
+
+dbSendQuery(birdStrikeDBCon, "DELETE FROM strikes;")
+dbSendQuery(birdStrikeDBCon, "DELETE FROM flights;")
+dbSendQuery(birdStrikeDBCon, "DELETE FROM airports;")
+dbSendQuery(birdStrikeDBCon, "DELETE FROM conditions;")
+
+```
+
+```{r LoadCSV}
+# Load CSV file into a dataframe
+bds.raw <- read.csv("BirdStrikesData-V3.csv", header = TRUE, sep = ",")
+print(head(bds.raw))
+print(colnames(bds.raw))
+```
+
+## Data Cleaning and pre-processing to format the date
+
+# 1. We are normalizing the flight phases to have only values takeoff,landing,inflight,unknown
+# 2. The flight_date field was transformed into
+```{r parseDateforDeparture}
+bds.raw$flight_date<- parse_date_time(bds.raw$flight_date, orders=c("m-d-y H:M","m/d/y H:M"))
+bds.raw$flight_date <- format(bds.raw$flight_date,"%Y-%m-%d")
+```
+```{r cleaningSentinelData, eval=FALSE}
+case5 <- which(bds.raw$airline=='')
+bds.raw[case5,"airline"] <- 'unknown'
+
+case6 <- which(bds.raw$aircraft=='')
+bds.raw[case6,"aircraft"] <- 'unknown'
+
+case7 <- which(bds.raw$airport=='')
+bds.raw[case7,"airport"] <- 'unknown'
+```
+
+```{r disconnectDB}
+dbDisconnect(birdStrikeDBCon)
+```

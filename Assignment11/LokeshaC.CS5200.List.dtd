@@ -1,0 +1,9 @@
+<!ELEMENT todo (list*)>
+<!ELEMENT list (item*)>
+<!ATTLIST list name CDATA #REQUIRED>
+<!ATTLIST list category (personal|work|home|school) #REQUIRED>
+<!ELEMENT item EMPTY>
+<!ATTLIST item iid ID #REQUIRED>
+<!ATTLIST item title CDATA #REQUIRED>
+<!ATTLIST item desc CDATA #REQUIRED>
+<!ATTLIST item due CDATA #REQUIRED>

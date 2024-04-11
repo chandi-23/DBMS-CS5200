@@ -1,0 +1,349 @@
+---
+title: "Assignment 5.1"
+author: "Chandresh Lokesha"
+output: html_notebook
+---
+
+```{r}
+library(RSQLite)
+# Connect to database
+dbfile = "MediaDB.db"
+connStr <- dbConnect(RSQLite::SQLite(), dbfile)
+```
+
+```{r} 
+dbExecute(connStr, "PRAGMA foreign_keys = ON")
+```
+
+<!--
+What are the last name, first name, title, and hire date of all employees, sorted by last name?
+-->
+```{sql connection=connStr}
+SELECT DISTINCT LastName, FirstName, Title, HireDate 
+FROM employees
+ORDER BY LastName
+```
+
+<!--
+What are the names of each genre and the number of distinct albums in that genre? 
+-->
+```{sql connection=connStr}
+SELECT 
+    g.Name AS GenreName,
+    COUNT(DISTINCT t.AlbumId) AS NumberOfAlbums
+FROM 
+    genres g
+JOIN 
+    tracks t ON g.genreID = t.GenreId
+GROUP BY 
+    g.genreID
+ORDER BY 
+    NumberOfAlbums DESC
+Limit 10;
+```
+<!--
+What are the distinct media types?
+-->
+```{sql connection=connStr}
+SELECT DISTINCT
+    mt.Name as Media_Types
+FROM 
+    media_types mt
+JOIN 
+    tracks t ON mt.MediaTypeId = t.MediaTypeId
+```
+
+<!--
+List the number of tracks by genre, ordered from most to least, restricted to those genres for which there are at least four tracks.
+-->
+```{sql connection=connStr}
+SELECT DISTINCT
+    g.Name as Genre, COUNT(DISTINCT t.TrackId) as NumberOfTracks
+FROM 
+    tracks t
+JOIN 
+    genres g ON g.GenreId = t.GenreId 
+GROUP BY
+    t.GenreId
+HAVING
+    COUNT(DISTINCT t.TrackId) >= 4
+ORDER BY
+    NumberOfTracks DESC 
+Limit 10;
+```
+
+
+<!--
+What is the last name and first name of the youngest employee?
+Hint: SQLite does not support DATEDIFF but does support STRFTIME (see tutorialLinks to an external site.). You need to only take year and month into account.
+-->
+```{sql connection=connStr}
+SELECT DISTINCT
+    LastName, FirstName, HireDate
+FROM 
+    employees
+
+ORDER BY
+    HireDate DESC
+Limit 1
+```
+
+<!--
+What are the total number of unique purchases for each Brazilian state (e.g., MG, SP, etc.), ordered alphabetically by state, and in which there were at least two purchases?
+-->
+```{sql, connection=connStr}
+SELECT 
+    BillingState,
+    COUNT(DISTINCT i.InvoiceId) AS TotalPurchases
+FROM 
+    invoices i
+JOIN 
+    invoice_items ii ON i.InvoiceId = ii.InvoiceId
+WHERE 
+    BillingCountry = 'Brazil'
+GROUP BY 
+    BillingState
+HAVING 
+    COUNT(DISTINCT i.InvoiceId) >= 2
+ORDER BY 
+    BillingState;
+```
+
+<!--
+How many employees never worked with a single customer, i.e., they appear in the employees table but not in the customers table?
+-->
+```{sql, connection=connStr}
+SELECT  COUNT(*) 
+FROM invoices 
+WHERE invoices.CustomerId NOT IN (select customers.CustomerId from customers)
+```
+
+<!--
+How many albums contain the substring "Classic" but not "Hard" in the album title?
+-->
+```{sql, connection=connStr}
+SELECT  COUNT(DISTINCT a.AlbumId) as 'Number of titles having `Classic` but not `Hard` in Title'
+FROM albums a
+JOIN
+  tracks t ON a.AlbumId = t.AlbumId
+WHERE a.title LIKE '%CLASSIC%' and a.title NOT LIKE '%HARD%'
+```
+
+<!--
+9.What is the total number of distinct genres?
+-->
+```{sql, connection=connStr}
+SELECT  
+    COUNT(DISTINCT t.GenreId) as 'Total Distinct genres'
+FROM 
+    tracks t
+JOIN 
+  genres g ON g.GenreId = t.GenreId
+
+```
+
+<!--
+10.What is the total "time" of all tracks per media type in hours, i.e., add up the "Milliseconds" column in tracks? Display the media type and the time in hours rounded to one decimals. Only consider media types with at least one track.
+-->
+```{sql, connection=connStr}
+SELECT  
+    mt.Name, ROUND(SUM(t.Milliseconds)/3600000.0, 1) AS "In Hours"
+FROM 
+    tracks t
+JOIN 
+  media_types mt ON mt.MediaTypeId = t.MediaTypeId
+GROUP BY 
+  t.MediaTypeId
+Having
+  COUNT(DISTINCT t.MediaTypeId) > 0
+```
+
+<!--
+11.What is the title and artist name of the longest album, in terms of minutes of playtime of all tracks on that albums?
+-->
+```{sql, connection=connStr}
+SELECT  
+    a.title, ar.Name
+FROM 
+    albums a
+JOIN 
+  tracks t ON t.AlbumId = a.AlbumId
+JOIN
+  artists ar ON ar.ArtistId = a.ArtistId
+GROUP BY
+  a.AlbumId, a.Title, ar.Name
+ORDER BY
+  SUM(t.Milliseconds) Desc
+LIMIT 1
+```
+
+<!--
+12.Which genre has the least number of tracks?
+-->
+```{sql, connection=connStr}
+SELECT  
+    g.Name, COUNT(t.trackID)
+FROM 
+    tracks t
+JOIN 
+  genres g ON g.GenreId = t.GenreId
+Group By
+  g.GenreId
+ORDER BY
+  COUNT(t.TrackId)
+LIMIT 1
+```
+
+<!--
+13.Which media format has the fewest tracks?
+-->
+```{sql, connection=connStr}
+SELECT  
+    mt.Name
+FROM 
+    tracks t
+JOIN 
+  media_types mt ON mt.MediaTypeId = t.MediaTypeId
+Group By
+  mt.MediaTypeId
+ORDER BY
+  COUNT(t.TrackId)
+LIMIT 1
+```
+
+
+<!--
+14.For each country, what is the total number of unique customers and the total spent?
+-->
+```{sql, connection=connStr}
+SELECT  
+    c.Country, COUNT(DISTINCT c.customerID) as 'Unique Customer', SUM(i.Total) as 'Total Amt Spent'
+FROM 
+    Customers c
+JOIN 
+  invoices i ON i.CustomerId = c.CustomerId
+Group By
+  c.Country
+LIMIT 10;
+```
+
+<!--
+15.What is the total amount spent by all customers who do not live in South America?
+-->
+```{sql, connection=connStr}
+SELECT  
+    SUM(i.total) as 'Amount Spent'
+FROM 
+    Customers c
+JOIN 
+  invoices i ON i.CustomerId = c.CustomerId
+WHERE
+  c.Country not in ('SOUTH AMERICA')
+
+```
+
+```{sql, connection=connStr}
+SELECT
+   *
+FROM
+  media_types
+
+```
+
+<!--
+16.What is the difference in spending on any type of MPEG vs any type of AAC track?
+-->
+```{sql, connection=connStr}
+SELECT
+    SUM(CASE WHEN mt.Name LIKE '%MPEG%' THEN ii.UnitPrice * ii.Quantity ELSE 0 END) -
+    SUM(CASE WHEN mt.Name LIKE '%AAC%' THEN ii.UnitPrice * ii.Quantity ELSE 0 END) AS SpendingDifference
+FROM
+    invoice_items ii
+JOIN
+    tracks t ON ii.TrackId = t.TrackId
+JOIN
+    media_types mt ON t.MediaTypeId = mt.MediaTypeId
+```
+
+<!--
+17.Which country has the most customers?
+-->
+```{sql, connection=connStr}
+SELECT  
+    c.country
+FROM 
+    Customers c
+GROUP BY
+  c.country
+ORDER BY
+  COUNT(DISTINCT c.CustomerId) DESC
+Limit 1
+```
+
+<!--
+18.How many tracks did "Amy Winehouse" record?
+-->
+```{sql, connection=connStr}
+SELECT  
+    COUNT(DISTINCT t.trackId) as 'Total tracks by Amy Winehouse'
+FROM 
+    tracks t
+JOIN
+  albums a ON a.AlbumId = t.AlbumId
+JOIN
+  artists ar ON ar.ArtistId = a.artistId
+WHERE
+  ar.Name = 'Amy Winehouse'
+```
+
+<!--
+19.What is the name of the artist who earned the most, i.e., whose aggregate total of all tracks sold is the highest?
+-->
+```{sql, connection=connStr}
+SELECT  
+    ar.Name
+FROM 
+    tracks t
+JOIN
+  albums a ON a.AlbumId = t.AlbumId
+JOIN
+  artists ar ON ar.ArtistId = a.artistId
+JOIN 
+  invoice_items ii ON t.trackId = ii.trackId
+GROUP BY
+  ar.ArtistId
+ORDER BY
+  SUM(ii.Quantity) DESC
+Limit 1
+```
+
+<!--
+20.Which artist is the most popular in Paris? Popularity is defined in this context as the artist who was purchased most often by someone living in Paris.
+-->
+```{sql, connection=connStr}
+SELECT  
+    ar.Name
+FROM 
+    tracks t
+JOIN
+  albums a ON a.AlbumId = t.AlbumId
+JOIN
+  artists ar ON ar.ArtistId = a.artistId
+JOIN 
+  invoice_items ii ON t.trackId = ii.trackId
+JOIN
+  invoices i ON ii.InvoiceId = i.InvoiceId
+JOIN
+  customers c ON c.customerId = i.CustomerId
+WHERE
+  c.City = 'Paris'
+GROUP BY
+  ar.ArtistId
+ORDER BY
+  SUM(ii.Quantity) DESC
+Limit 1
+```
+
+```{r}
+dbDisconnect(connStr)
+```

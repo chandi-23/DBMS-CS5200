@@ -1,0 +1,24 @@
+---
+title: "TestScript"
+author: "Chandresh Lokesha"
+date: "2024-03-25"
+output: pdf_document
+---
+
+```{r connectToDB}
+birdStrikeDBCon = dbConnect(RMySQL::MySQL(),
+                            dbname='sql5694564',
+                            host='sql5.freemysqlhosting.net',
+                            port=3306,
+                            user='sql5694564',
+                            password='wd6xs7ESMR')
+```
+
+```{sql countTest, connection = birdStrikeDBCon}
+-- Check total number of records in strikes_raw table
+SELECT COUNT(*) AS TotalRecords FROM strikes;
+```
+
+```{r connectToDB}
+dbDisconnect(birdStrikeDBCon)
+```
